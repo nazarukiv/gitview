@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: gitview
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gitview
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 2006
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 1
+            client-secret: 2
+            scope: 3
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
