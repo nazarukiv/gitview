@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitView</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0d1117;
+            color: #e6edf3;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #58a6ff, #bf91f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #8b949e;
+            margin-bottom: 48px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px 20px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            color: #e6edf3;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: #58a6ff; }
+
+        input::placeholder { color: #484f58; }
+
+        button {
+            padding: 14px 28px;
+            background: #238636;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #2ea043; }
+    </style>
+</head>
+<body>
+<div class="hero">
+    <div class="logo">GitView</div>
+    <p class="subtitle">Enter a GitHub username to see their activity dashboard</p>
+    <div class="search-box">
+        <input type="text" id="username" placeholder="e.g. torvalds" />
+        <button onclick="search()">View Profile</button>
+    </div>
+</div>
+
+<script>
+    function search() {
+        const username = document.getElementById('username').value.trim();
+        if (username) window.location.href = '/dashboard/' + username;
+    }
+
+    document.getElementById('username').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') search();
+    });
+</script>
+</body>
+</html>
