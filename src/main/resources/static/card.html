@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitView Card</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 20px; padding: 36px; width: 100%; max-width: 600px; }
+        .card-header { display: flex; gap: 20px; align-items: center; margin-bottom: 28px; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #30363d; }
+        .name { font-size: 24px; font-weight: 700; }
+        .handle { color: #58a6ff; font-size: 14px; margin-top: 4px; }
+        .bio { color: #8b949e; font-size: 13px; margin-top: 6px; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; background: #0d1117; border: 1px solid #30363d; border-radius: 99px; padding: 4px 12px; font-size: 12px; color: #8b949e; margin-top: 8px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+        .stat { background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #58a6ff, #bf91f3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 11px; color: #8b949e; margin-top: 4px; }
+        .langs { margin-bottom: 24px; }
+        .lang-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .lang-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .lang-name { font-size: 13px; width: 80px; }
+        .lang-bar-wrap { flex: 1; height: 6px; background: #21262d; border-radius: 99px; overflow: hidden; }
+        .lang-bar { height: 100%; border-radius: 99px; }
+        .lang-pct { font-size: 12px; color: #8b949e; width: 36px; text-align: right; }
+        .footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid #21262d; }
+        .footer-logo { font-size: 16px; font-weight: 800; background: linear-gradient(135deg, #58a6ff, #bf91f3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .copy-btn { padding: 8px 20px; background: #238636; border: none; border-radius: 8px; color: white; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #2ea043; }
+        .copy-btn.copied { background: #388bfd; }
+        .loading { text-align: center; color: #8b949e; padding: 60px; }
+    </style>
+</head>
+<body>
+<div class="card" id="card">
+    <div class="loading" id="loading">Loading profile...</div>
+    <div id="content" style="display:none">
+        <div class="card-header">
+            <img class="avatar" id="avatar" src="" alt="" />
+            <div>
+                <div class="name" id="name"></div>
+                <div class="handle" id="handle"></div>
+                <div class="bio" id="bio"></div>
+                <div class="badge" id="location"></div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat"><div class="stat-value" id="repos">0</div><div class="stat-label">Repos</div></div>
+            <div class="stat"><div class="stat-value" id="followers">0</div><div class="stat-label">Followers</div></div>
+            <div class="stat"><div class="stat-value" id="stars">0</div><div class="stat-label">Stars</div></div>
+            <div class="stat"><div class="stat-value" id="forks">0</div><div class="stat-label">Forks</div></div>
+        </div>
+        <div class="langs" id="langs"></div>
+        <div class="footer">
+            <div class="footer-logo">gitview.app</div>
+            <button class="copy-btn" id="copyBtn" onclick="copyLink()">Share Card</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const username = window.location.pathname.split('/').pop();
+
+    fetch('/api/stats/' + username)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('avatar').src = data.avatarUrl || '';
+            document.getElementById('name').textContent = data.displayName || data.username;
+            document.getElementById('handle').textContent = '@' + data.username;
+            document.getElementById('bio').textContent = data.bio || '';
+            document.getElementById('repos').textContent = data.publicRepos ?? 0;
+            document.getElementById('followers').textContent = data.followers ?? 0;
+            document.getElementById('stars').textContent = data.totalStars ?? 0;
+            document.getElementById('forks').textContent = data.totalForks ?? 0;
+
+            const loc = document.getElementById('location');
+            if (data.location) {
+                loc.textContent = '📍 ' + data.location;
+            } else {
+                loc.style.display = 'none';
+            }
+
+            const langs = data.topLanguages || [];
+            const langsEl = document.getElementById('langs');
+            langs.forEach(l => {
+                langsEl.innerHTML += `
+                    <div class="lang-item">
+                        <div class="lang-dot" style="background:${l.color}"></div>
+                        <div class="lang-name">${l.name}</div>
+                        <div class="lang-bar-wrap"><div class="lang-bar" style="width:${l.percentage}%;background:${l.color}"></div></div>
+                        <div class="lang-pct">${l.percentage}%</div>
+                    </div>`;
+            });
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        })
+        .catch(() => {
+            document.getElementById('loading').textContent = 'User not found.';
+        });
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Share Card'; btn.classList.remove('copied'); }, 2000);
+    }
+</script>
+</body>
+</html>
