@@ -133,11 +133,11 @@
         langList.innerHTML = '';
         langs.forEach(l => {
             langList.innerHTML += `
-                <div class="lang-item">
-                    <div class="lang-name">${l.name}</div>
-                    <div class="lang-bar-wrap"><div class="lang-bar" style="width:${l.percentage}%;background:${l.color}"></div></div>
-                    <div class="lang-pct">${l.percentage}%</div>
-                </div>`;
+            <div class="lang-item">
+                <div class="lang-name">${l.name}</div>
+                <div class="lang-bar-wrap"><div class="lang-bar" style="width:${l.percentage}%;background:${l.color}"></div></div>
+                <div class="lang-pct">${l.percentage}%</div>
+            </div>`;
         });
 
         if (langs.length > 0) {
@@ -160,6 +160,7 @@
 
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
+    stompClient.debug = null;
 
     stompClient.connect({}, function() {
         stompClient.subscribe('/topic/progress/' + username, function(msg) {
@@ -168,7 +169,10 @@
         });
 
         fetch('/api/stats/' + username)
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error('not found');
+                return r.json();
+            })
             .then(data => renderDashboard(data))
             .catch(() => setProgress('User not found', 0));
     });

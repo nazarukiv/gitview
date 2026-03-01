@@ -1,10 +1,12 @@
 package com.nazarukiv.gitview.dto;
 
 import lombok.Data;
+
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class GithubStatsDto {
+public class GithubStatsDto implements Serializable {
     private String username;
     private String displayName;
     private String avatarUrl;
